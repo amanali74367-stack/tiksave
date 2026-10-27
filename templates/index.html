@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TikSave — TikTok Video Downloader</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23070918'/%3E%3Cg fill='%2325f4ee' transform='translate(-3 -2)'%3E%3Cellipse cx='36' cy='72' rx='11' ry='8'/%3E%3Crect x='45' y='24' width='5' height='48'/%3E%3Cellipse cx='68' cy='66' rx='11' ry='8'/%3E%3Crect x='77' y='18' width='5' height='48'/%3E%3Cpath d='M45 24 L82 18 L82 31 L45 37 Z'/%3E%3C/g%3E%3Cg fill='%23fe2c55' transform='translate(3 2)'%3E%3Cellipse cx='36' cy='72' rx='11' ry='8'/%3E%3Crect x='45' y='24' width='5' height='48'/%3E%3Cellipse cx='68' cy='66' rx='11' ry='8'/%3E%3Crect x='77' y='18' width='5' height='48'/%3E%3Cpath d='M45 24 L82 18 L82 31 L45 37 Z'/%3E%3C/g%3E%3Cg fill='white'%3E%3Cellipse cx='36' cy='72' rx='11' ry='8'/%3E%3Crect x='45' y='24' width='5' height='48'/%3E%3Cellipse cx='68' cy='66' rx='11' ry='8'/%3E%3Crect x='77' y='18' width='5' height='48'/%3E%3Cpath d='M45 24 L82 18 L82 31 L45 37 Z'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:'Segoe UI', Arial, sans-serif; background:#f4f6fb; color:#1c2333; }
+  header { background:#fff; border-bottom:1px solid #e5e8f2; }
+  .hbar { max-width:860px; margin:0 auto; padding:10px 16px; display:flex; align-items:center; gap:10px; }
+  .hbar svg { width:36px; height:36px; }
+  .brand { font-size:21px; font-weight:800; color:#141a2b; }
+  .brand span { background:linear-gradient(90deg,#2d7ff9,#7b2ff7); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .tag { margin-left:auto; font-size:12.5px; font-weight:700; color:#2d7ff9;
+         background:#e8f1fe; border:1px solid #c9defc; padding:5px 12px; border-radius:999px; }
+  .hero { background:linear-gradient(90deg,#2d7ff9,#7b2ff7); color:#fff; text-align:center; padding:36px 16px 40px; }
+  .hero h1 { margin:0 0 8px; font-size:32px; font-weight:800; }
+  .hero p { margin:0; font-size:15.5px; color:rgba(255,255,255,.88); }
+  .wrap { max-width:860px; margin:-22px auto 0; padding:0 16px 40px; }
+  .box { background:#fff; border-radius:14px; box-shadow:0 12px 32px rgba(28,35,51,.13); padding:16px;
+         display:flex; gap:10px; align-items:stretch; }
+  .box input { flex:1; min-width:0; padding:14px 15px; font-size:15.5px; border:1.5px solid #d9deeb;
+               border-radius:10px; outline:none; }
+  .box input:focus { border-color:#2d7ff9; box-shadow:0 0 0 3px rgba(45,127,249,.16); }
+  button.paste { padding:0 16px; border-radius:10px; border:1.5px solid #d9deeb; background:#fff;
+                 color:#41507a; font-size:14.5px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  button.paste:hover { background:#f0f4fd; }
+  button.go { padding:0 26px; border:0; border-radius:10px; background:#2d7ff9; color:#fff;
+              font-size:16px; font-weight:700; cursor:pointer; white-space:nowrap;
+              box-shadow:0 6px 16px rgba(45,127,249,.35); }
+  button.go:hover { background:#1f6fe6; }
+  button.go:disabled { opacity:.6; cursor:wait; }
+  @media (max-width:560px) { .box { flex-wrap:wrap; } .box input { flex:1 1 100%; } button.go { flex:1; padding:13px; } }
+  .err { display:none; max-width:860px; margin:14px auto 0; padding:12px 15px; border-radius:10px;
+         background:#fdeef0; border:1px solid #f5b7c1; color:#a31c34; font-size:14.5px; }
+  .result { display:none; background:#fff; border-radius:14px; box-shadow:0 12px 32px rgba(28,35,51,.13);
+            margin-top:18px; padding:18px; animation:pop .3s ease; }
+  @keyframes pop { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:none;} }
+  .meta { display:flex; gap:15px; }
+  .meta img { width:100px; height:134px; object-fit:cover; border-radius:10px; background:#dfe4f0; }
+  .meta .t { font-weight:700; font-size:16px; line-height:1.4; color:#141a2b; }
+  .owner { display:inline-block; margin-top:9px; padding:5px 13px; border-radius:999px;
+           font-weight:700; font-size:14px; color:#1f6fe6; background:#e8f1fe; border:1px solid #c9defc; }
+  .meta .a { color:#68738f; font-size:13.5px; margin-top:7px; }
+  .btns { margin-top:18px; display:grid; gap:10px; }
+  a.dl { display:block; text-align:center; padding:13px; border-radius:10px; text-decoration:none;
+         font-weight:700; font-size:15.5px; color:#fff; }
+  a.dl small { font-weight:500; opacity:.85; }
+  a.dl:hover { filter:brightness(1.07); }
+  a.dl.nowm { background:#2d7ff9; }
+  a.dl.hd   { background:#1db954; }
+  a.dl.wm   { background:#f5a623; color:#231a00; }
+  a.dl.mp3  { background:#7b2ff7; }
+  .foot { text-align:center; color:#8a93ad; font-size:12.5px; margin-top:26px; line-height:1.55; }
+  .foot b { color:#5a6580; }
+</style>
+</head>
+<body>
+<header>
+  <div class="hbar">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="TikSave logo">
+      <rect x="3" y="3" width="94" height="94" rx="26" fill="#070918"/>
+      <g fill="#25f4ee" transform="translate(-2.6 -2)">
+        <ellipse cx="36" cy="71" rx="10.5" ry="7.6"/><rect x="44.5" y="25" width="4.6" height="46"/>
+        <ellipse cx="66" cy="65" rx="10.5" ry="7.6"/><rect x="74.5" y="19" width="4.6" height="46"/>
+        <path d="M44.5 25 L79.1 19 L79.1 31.5 L44.5 37.5 Z"/>
+      </g>
+      <g fill="#fe2c55" transform="translate(2.6 2)">
+        <ellipse cx="36" cy="71" rx="10.5" ry="7.6"/><rect x="44.5" y="25" width="4.6" height="46"/>
+        <ellipse cx="66" cy="65" rx="10.5" ry="7.6"/><rect x="74.5" y="19" width="4.6" height="46"/>
+        <path d="M44.5 25 L79.1 19 L79.1 31.5 L44.5 37.5 Z"/>
+      </g>
+      <g fill="#ffffff">
+        <ellipse cx="36" cy="71" rx="10.5" ry="7.6"/><rect x="44.5" y="25" width="4.6" height="46"/>
+        <ellipse cx="66" cy="65" rx="10.5" ry="7.6"/><rect x="74.5" y="19" width="4.6" height="46"/>
+        <path d="M44.5 25 L79.1 19 L79.1 31.5 L44.5 37.5 Z"/>
+      </g>
+    </svg>
+    <div class="brand">Tik<span>Save</span></div>
+    <div class="tag">FREE • NO WATERMARK</div>
+  </div>
+</header>
+
+<div class="hero">
+  <h1>TikTok Video Downloader</h1>
+  <p>Download TikTok videos without watermark — HD quality &amp; MP3 audio</p>
+</div>
+
+<div class="wrap">
+  <div class="box">
+    <input id="url" type="text" placeholder="Insert a link here">
+    <button class="paste" id="pasteBtn">📋 Paste</button>
+    <button class="go" id="go">Download</button>
+  </div>
+  <div class="err" id="err"></div>
+
+  <div class="result" id="result">
+    <div class="meta">
+      <img id="cover" alt="">
+      <div>
+        <div class="t" id="title"></div>
+        <div><span class="owner" id="owner"></span></div>
+        <div class="a" id="author"></div>
+        <div class="a" id="dur"></div>
+      </div>
+    </div>
+    <div class="btns" id="btns"></div>
+  </div>
+
+  <p class="foot">For your own or permitted videos only.<br><b>TikSave</b> — links are generated live from TikTok.</p>
+</div>
+
+<script>
+const go = document.getElementById('go');
+const urlBox = document.getElementById('url');
+document.getElementById('pasteBtn').addEventListener('click', async () => {
+  try { urlBox.value = await navigator.clipboard.readText(); urlBox.focus(); } catch (e) { urlBox.focus(); }
+});
+urlBox.addEventListener('keydown', e => { if (e.key === 'Enter') go.click(); });
+go.addEventListener('click', async () => {
+  const url = urlBox.value.trim();
+  const err = document.getElementById('err');
+  const res = document.getElementById('result');
+  err.style.display = 'none'; res.style.display = 'none';
+  if (!url) { err.textContent = 'Please paste a TikTok link first.'; err.style.display = 'block'; return; }
+  go.disabled = true; go.textContent = 'Please wait…';
+  try {
+    const r = await fetch('/api/fetch', { method:'POST',
+      headers:{'Content-Type':'application/json'}, body: JSON.stringify({url}) });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'Something went wrong.');
+    document.getElementById('cover').src = d.cover || '';
+    document.getElementById('title').textContent = d.title || '';
+    document.getElementById('owner').textContent =
+      d.author_id ? ('Video by @' + d.author_id) : '';
+    document.getElementById('author').textContent = d.author || '';
+    document.getElementById('dur').textContent = 'Duration: ' + (d.duration || '');
+    const btns = document.getElementById('btns'); btns.innerHTML = '';
+    for (const k of ['nowm','hd','wm','mp3']) {
+      const L = d.links[k]; if (!L) continue;
+      const a = document.createElement('a');
+      a.className = 'dl ' + k; a.href = L.href;
+      a.innerHTML = '⬇ ' + L.label + (L.size_mb ? ' <small>(' + L.size_mb + ' MB)</small>' : '');
+      btns.appendChild(a);
+    }
+    res.style.display = 'block';
+  } catch (e) {
+    err.textContent = e.message; err.style.display = 'block';
+  } finally {
+    go.disabled = false; go.textContent = 'Download';
+  }
+});
+</script>
+</body>
+</html>
